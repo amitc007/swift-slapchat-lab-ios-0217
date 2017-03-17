@@ -13,6 +13,8 @@ class DataStore {
     
     static let sharedInstance = DataStore()
     
+    var messages:[Message] = []    //to get messages from core data
+    
     private init() {}
     
     // MARK: - Core Data stack
@@ -59,5 +61,46 @@ class DataStore {
             }
         }
     }
+    
+    
+    func fetchData() {
+        let context = persistentContainer.viewContext
+        let fetchRequest:NSFetchRequest<Message> = Message.fetchRequest()
+        //let fetchRequest:NSFetchRequest<NSManagedObject> = Message.fetchRequest()
+        do {
+            self.messages = try context.fetch(fetchRequest)
+            
+            print(messages)
+        } catch { }
+    }
+    
+    
+    func generateTestData() {
+        
+        let context = DataStore.sharedInstance.persistentContainer.viewContext  //get context
+        
+        let message1 = Message(context: context)     //create entity/obj
+        message1.content = "One"
+        message1.createdAt = Date() as NSDate?
+        DataStore.sharedInstance.messages.append(message1)
+        
+        let message2 = Message(context: context)
+        message2.content = "Two"
+        message2.createdAt = NSDate(timeIntervalSinceNow: 120)
+        DataStore.sharedInstance.messages.append(message2)
+        
+        
+        let message3 = Message(context: context)
+        message3.content = "Three"
+        message3.createdAt = NSDate(timeIntervalSinceNow: 180)
+        DataStore.sharedInstance.messages.append(message2)
+        
+        //print("msg1:\(message1.createdAt) msg2:\(message2.createdAt) msg3:\(message3.createdAt)")
+        
+        DataStore.sharedInstance.saveContext()    //save messages in core data
+        
+        DataStore.sharedInstance.fetchData()    //get messages from core data
+    }
+
     
 }
